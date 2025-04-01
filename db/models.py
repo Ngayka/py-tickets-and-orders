@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 import settings
@@ -65,4 +66,14 @@ class Order(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self) -> str:
-        return f"Order {self.created_at.strftime("%Y-%m-%D %h:%M:%p")}"
+        return f"Order: {self.created_at.strftime("%Y-%m-%d %H:%M:%S")}"
+
+class Ticket(models.Model):
+    movie_session = models.ForeignKey(to=MovieSession, on_delete=models.CASCADE, related_name="tickets")
+    order = models.ForeignKey(to=Order, related_name="orders", on_delete=models.CASCADE)
+    row = models.IntegerField()
+    seat = models.IntegerField()
+
+    def clean(self):
+        if 1 <= self.row <= CinemaHall.rows or 1 <= self.seat <= CinemaHall.seats_in_row:
+            raise ValidationError
