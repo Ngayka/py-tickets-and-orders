@@ -1,6 +1,8 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db.models import UniqueConstraint
+
 import settings
 
 
@@ -75,5 +77,17 @@ class Ticket(models.Model):
     seat = models.IntegerField()
 
     def clean(self):
-        if 1 <= self.row <= CinemaHall.rows or 1 <= self.seat <= CinemaHall.seats_in_row:
-            raise ValidationError
+        if not (1 <= self.row <= self.movie_session.cinema_hall.rows):
+            raise ValidationError(
+                {"row": f"invalid row {self.row} number. Should be in range ["
+                         f"1, {self.movie_session.cinema_hall.rows}]"}
+            )
+        if not (1 <= self.seat <= self.movie_session.cinema_hall.seats_in_row):
+            raise ValidationError(
+                {"seat": f"invalid seat {self.seat} number. Should be in range [1, {self.movie_session.cinema_hall.seats_in_row}]"}
+            )
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
+    class Meta:
+        constraints = [UniqueConstraint(fields=["movie_session", "row", "seat"], name="unique_ticket")]
