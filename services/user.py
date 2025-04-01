@@ -1,5 +1,6 @@
 from db.models import User
 
+
 def create_user(username: str,
                 password: str,
                 email: str = "",
@@ -12,8 +13,10 @@ def create_user(username: str,
                                     last_name=last_name)
     return user
 
+
 def get_user(user_id: int) -> User:
     return User.objects.get(id=user_id)
+
 
 def update_user(user_id: int, **info) -> User:
     user = User.objects.get(id=user_id)
