@@ -56,6 +56,7 @@ class MovieSession(models.Model):
     def __str__(self) -> str:
         return f"{self.movie.title} {str(self.show_time)}"
 
+
 class User(AbstractUser):
     pass
 
@@ -68,7 +69,7 @@ class Order(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self) -> str:
-        return f"Order: {self.created_at.strftime("%Y-%m-%d %H:%M:%S")}"
+        return str(self.created_at.strftime("%Y-%m-%d %H:%M:%S"))
 
 class Ticket(models.Model):
     movie_session = models.ForeignKey(to=MovieSession, on_delete=models.CASCADE, related_name="tickets")
@@ -76,15 +77,17 @@ class Ticket(models.Model):
     row = models.IntegerField()
     seat = models.IntegerField()
 
+    def __str__(self) -> str:
+        return f"{self.movie_session.movie.title} {self.movie_session.show_time} (row: {self.row}, seat: {self.seat})"
+
     def clean(self):
         if not (1 <= self.row <= self.movie_session.cinema_hall.rows):
             raise ValidationError(
-                {"row": f"invalid row {self.row} number. Should be in range ["
-                         f"1, {self.movie_session.cinema_hall.rows}]"}
+                {"row": f"row number must be in available range: (1, rows): (1, {self.movie_session.cinema_hall.rows})"}
             )
         if not (1 <= self.seat <= self.movie_session.cinema_hall.seats_in_row):
             raise ValidationError(
-                {"seat": f"invalid seat {self.seat} number. Should be in range [1, {self.movie_session.cinema_hall.seats_in_row}]"}
+                {"seat": f"seat number must be in available range: (1, seats_in_row): (1, {self.movie_session.cinema_hall.seats_in_row})"}
             )
     def save(self, *args, **kwargs):
         self.full_clean()
