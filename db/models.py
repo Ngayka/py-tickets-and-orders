@@ -7,6 +7,7 @@ import settings
 
 
 class Genre(models.Model):
+    objects = models.Manager()
     name = models.CharField(max_length=255, unique=True)
 
     def __str__(self) -> str:
@@ -14,6 +15,7 @@ class Genre(models.Model):
 
 
 class Actor(models.Model):
+    objects = models.Manager()
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
 
@@ -22,6 +24,7 @@ class Actor(models.Model):
 
 
 class Movie(models.Model):
+    objects = models.Manager()
     title = models.CharField(max_length=255, db_index=True)
     description = models.TextField()
     actors = models.ManyToManyField(to=Actor, related_name="movies")
@@ -45,6 +48,7 @@ class CinemaHall(models.Model):
 
 
 class MovieSession(models.Model):
+    objects = models.Manager()
     show_time = models.DateTimeField()
     cinema_hall = models.ForeignKey(
         to=CinemaHall, on_delete=models.CASCADE, related_name="movie_sessions"
@@ -62,6 +66,7 @@ class User(AbstractUser):
 
 
 class Order(models.Model):
+    objects = models.Manager()
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(to=settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE,
@@ -75,6 +80,7 @@ class Order(models.Model):
 
 
 class Ticket(models.Model):
+    objects = models.Manager()
     movie_session = models.ForeignKey(to=MovieSession,
                                       on_delete=models.CASCADE,
                                       related_name="tickets")
